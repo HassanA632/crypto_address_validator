@@ -1,3 +1,4 @@
+use bech32::decode;
 use bs58;
 use sha2::{Digest, Sha256};
 use std::{collections, io::stdin, ops::Add};
@@ -60,12 +61,19 @@ fn is_valid_base58check(address: &str) -> () {
     }
 }
 
+fn validate_bech32_address(address: &str) -> bool {
+    match decode(address) {
+        Ok((_hrp, _data)) => true,
+        Err(_) => false,
+    }
+}
+
 fn main() {
     // //let mut input = String::new();
     // println!("Enter a crypto address to verify");
     // stdin().read_line(&mut input).expect("Failed to read line");
     // let trimmed_address = input.trim();
-    let trimmed_address = "1dice8EMZmqKvrGE4Qc9bUFf9PX3xaYDp";
+    let trimmed_address = "A1LQFM3A";
     //println!("{:?}", length_check(trimmed_address))
-    is_valid_base58check(trimmed_address)
+    println!("{}", validate_bech32_address(trimmed_address))
 }

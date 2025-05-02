@@ -6,3 +6,4 @@ edition = "2021"
 [dependencies]
 bs58 = "0.5.1"
 sha2 = "0.10.9"
+bech32 = "0.11.0"
