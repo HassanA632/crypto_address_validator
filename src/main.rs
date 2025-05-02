@@ -5,10 +5,8 @@ use std::{collections, io::stdin, ops::Add};
 
 #[derive(Debug)]
 enum AddressType {
-    Base58Check,
+    Base58,
     Bech32,
-    Bech32m,
-    Empty,
 }
 
 fn length_check(address: &str) -> Option<bool> {
@@ -22,20 +20,16 @@ fn length_check(address: &str) -> Option<bool> {
 }
 
 fn prefix_check(address: &str) -> Option<AddressType> {
-    if address.starts_with("1") {
-        return Some(AddressType::Base58Check);
-    } else if address.starts_with("3") {
-        return Some(AddressType::Base58Check);
+    if address.starts_with("1") || address.starts_with("3") {
+        return Some(AddressType::Base58);
     } else if address.starts_with("bc1") {
         return Some(AddressType::Bech32);
-    } else if address.starts_with("bc1p") {
-        return Some(AddressType::Bech32m);
     } else {
         return None;
     };
 }
 
-fn is_valid_base58check(address: &str) -> () {
+fn validate_base58(address: &str) -> bool {
     let decoded = match bs58::decode(address).into_vec() {
         Ok(bytes) => {
             //Check data is 25 bytes (Bitcoin Standard)
@@ -45,7 +39,7 @@ fn is_valid_base58check(address: &str) -> () {
                 //Split data between data and checksum
                 let (data, checksum) = bytes.split_at(21);
                 let hash = Sha256::digest(&Sha256::digest(data));
-                if checksum == &hash[0..4] {
+                if checksum == hash.get(0..4).unwrap() {
                     Some(bytes)
                 } else {
                     None
@@ -56,15 +50,27 @@ fn is_valid_base58check(address: &str) -> () {
     };
 
     match decoded {
-        Some(bytes) => println!("{:?}", bytes),
-        None => println!("none"),
+        Some(_) => {
+            println!("Valid Base58");
+            true
+        }
+        None => {
+            println!("NOT Valid Base58");
+            false
+        }
     }
 }
 
-fn validate_bech32_address(address: &str) -> bool {
+fn validate_bech32(address: &str) -> bool {
     match decode(address) {
-        Ok((_hrp, _data)) => true,
-        Err(_) => false,
+        Ok((_hrp, _data)) => {
+            println!("Valid bech32");
+            true
+        }
+        Err(_) => {
+            println!("NOT Valid bech32");
+            false
+        }
     }
 }
 
@@ -73,7 +79,23 @@ fn main() {
     // println!("Enter a crypto address to verify");
     // stdin().read_line(&mut input).expect("Failed to read line");
     // let trimmed_address = input.trim();
-    let trimmed_address = "A1LQFM3A";
-    //println!("{:?}", length_check(trimmed_address))
-    println!("{}", validate_bech32_address(trimmed_address))
+    let trimmed_address = "bc1qar0srrr7xfkvy5l643lydnw9re59gtzzwf5mdq";
+
+    let address_type: Option<AddressType> = prefix_check(trimmed_address);
+    //println!("{:#?}", address_type);
+
+    let my_match: bool = match address_type {
+        Some(my_type) => {
+            println!("Successful prefix check");
+            match my_type {
+                AddressType::Base58 => validate_base58(trimmed_address),
+                AddressType::Bech32 => validate_bech32(trimmed_address),
+            }
+        }
+        None => {
+            println!("unsuccessful prefix check");
+            false
+        }
+    };
+    println!("{}", my_match)
 }
