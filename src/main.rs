@@ -1,3 +1,5 @@
+use bs58;
+use sha2::{Digest, Sha256};
 use std::{collections, io::stdin, ops::Add};
 
 #[derive(Debug)]
@@ -32,12 +34,30 @@ fn prefix_check(address: &str) -> Option<AddressType> {
     };
 }
 
-fn is_valid_base58check(address: &str) -> bool {
+fn is_valid_base58check(address: &str) -> () {
     let decoded = match bs58::decode(address).into_vec() {
-        Ok(bytes) => true,
-        Err(_) => return false,
+        Ok(bytes) => {
+            //Check data is 25 bytes (Bitcoin Standard)
+            if bytes.len() != 25 {
+                None
+            } else {
+                //Split data between data and checksum
+                let (data, checksum) = bytes.split_at(21);
+                let hash = Sha256::digest(&Sha256::digest(data));
+                if checksum == &hash[0..4] {
+                    Some(bytes)
+                } else {
+                    None
+                }
+            }
+        }
+        Err(_) => None,
     };
-    decoded
+
+    match decoded {
+        Some(bytes) => println!("{:?}", bytes),
+        None => println!("none"),
+    }
 }
 
 fn main() {
@@ -45,7 +65,7 @@ fn main() {
     // println!("Enter a crypto address to verify");
     // stdin().read_line(&mut input).expect("Failed to read line");
     // let trimmed_address = input.trim();
-    let trimmed_address = "bc1pddddddddddddddddddddfddddddddddd";
+    let trimmed_address = "1dice8EMZmqKvrGE4Qc9bUFf9PX3xaYDp";
     //println!("{:?}", length_check(trimmed_address))
-    println!("{:?}", prefix_check(trimmed_address))
+    is_valid_base58check(trimmed_address)
 }
