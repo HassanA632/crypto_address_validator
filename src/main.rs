@@ -1,12 +1,23 @@
 use bech32::decode;
 use bs58;
 use sha2::{Digest, Sha256};
-//use std::{collections, io::stdin, ops::Add};
+use std::fs;
+use std::io::{BufReader, Read};
+use std::{collections::HashSet, io::BufRead};
+
+//for asking user for file name
+use std::io;
 
 #[derive(Debug)]
 enum AddressType {
     Base58,
     Bech32,
+}
+
+#[derive(Debug)]
+struct AddressValidity {
+    wallet_address: String,
+    valid: bool,
 }
 
 fn length_check(address: &str) -> Result<(), &str> {
@@ -81,6 +92,7 @@ fn match_address_type(address_type: AddressType, address: &str) -> Result<(), &s
     }
 }
 
+//Flow of checks
 fn process(address: &str) -> Result<(), Box<dyn std::error::Error>> {
     length_check(address)?;
     println!("✅ Length Check");
@@ -92,9 +104,37 @@ fn process(address: &str) -> Result<(), Box<dyn std::error::Error>> {
 }
 
 fn main() {
-    let trimmed_address = "3Jowo3eW88owPZScgFk";
-    match process(trimmed_address) {
-        Ok(_) => println!("Valid Bitcoin Address"),
-        Err(_) => println!("Invalid Bitcoin Address"),
+    //Hashset of valid addresses
+    let mut hashset_of_addresses = HashSet::new();
+
+    //Placeholder for .txt file to check
+    let mut file_name: String = String::new();
+
+    //Read file name
+    println!("Enter file name: ");
+    io::stdin()
+        .read_line(&mut file_name)
+        .expect("Error reading file name");
+
+    //Trim whitespace
+    file_name = file_name.trim().to_string();
+
+    //read entire content of file into string
+    let contents_of_file = fs::read_to_string(&file_name).expect("Failed to read file");
+
+    //Iterate and check each address
+    for current_address in contents_of_file.lines() {
+        println!("-------------------------------");
+        println!("Checking: {}", &current_address);
+        match process(current_address) {
+            Ok(_) => {
+                hashset_of_addresses.insert(current_address);
+            }
+            Err(_) => println!("INVALID ADDRESS"),
+        }
+        println!("-------------------------------");
     }
+
+    println!("Hashset of valid address:");
+    println!("{:?}", hashset_of_addresses);
 }
