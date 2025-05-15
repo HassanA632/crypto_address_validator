@@ -1,6 +1,6 @@
 use std::collections::HashSet;
 use std::fs;
-use std::io;
+use std::io::{self, Write};
 
 use crate::validation_pipeline;
 
@@ -28,7 +28,7 @@ pub fn file_handler() {
 
     //Todo- Make this a seperate txt file
     println!("Hashset of valid address:");
-    println!("{:?}", hashset_of_addresses);
+    hashset_to_file(hashset_of_addresses);
 }
 
 //Read input from user.
@@ -44,4 +44,13 @@ fn read_input() -> String {
 
     //Trim whitespace
     file_name.trim().to_string()
+}
+
+//convert hashset to file: "output.txt"
+fn hashset_to_file(hashset_of_addresses: HashSet<&str>) -> io::Result<()> {
+    let mut file = fs::File::create("output.txt")?;
+    for address in hashset_of_addresses {
+        writeln!(file, "{}", address)?;
+    }
+    Ok(())
 }
