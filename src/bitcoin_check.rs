@@ -2,7 +2,7 @@ use bech32::decode;
 use bs58;
 use sha2::{Digest, Sha256};
 
-#[derive(Debug)]
+#[derive(Debug, PartialEq, Eq)]
 pub enum AddressType {
     Base58,
     Bech32,
@@ -77,5 +77,49 @@ pub fn match_address_type(address_type: AddressType, address: &str) -> Result<()
     match address_type {
         AddressType::Base58 => validate_base58(address),
         AddressType::Bech32 => validate_bech32(address),
+    }
+}
+
+#[cfg(test)]
+mod test {
+    use super::*;
+
+    #[test]
+    fn length_checker_works() {
+        //Length of 30
+        let address = "111101111011110111101111011110";
+        let length_check = length_check(address);
+        assert_eq!(length_check, Ok(()));
+    }
+
+    #[test]
+    fn prefix_checker_works() {
+        //String starts with 3, so will return OK
+        let address = "30001";
+        let prefix_check = prefix_check(address);
+        assert_eq!(prefix_check, Ok(AddressType::Base58));
+    }
+
+    #[test]
+    fn base58_validation_check() {
+        //Valid base58 address
+        let address = "3JE2jZUsuFdyVq5PrUeyurhHXXZreLnYGE";
+        let base58_check = validate_base58(address);
+        assert_eq!(base58_check, Ok(()));
+    }
+
+    #[test]
+    fn bech32_validation_check() {
+        //Valid bech32 address
+        let address = "bc1q82zkkc98azx7g3f8fyc8a2v9hz7wd609ca7t44";
+        let bech32_check = validate_bech32(address);
+        assert_eq!(bech32_check, Ok(()));
+    }
+
+    #[test]
+    fn match_address_type_test() {
+        let test_match =
+            match_address_type(AddressType::Base58, "3JE2jZUsuFdyVq5PrUeyurhHXXZreLnYGE");
+        assert_eq!(test_match, Ok(()))
     }
 }

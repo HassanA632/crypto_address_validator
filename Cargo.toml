@@ -7,3 +7,7 @@ edition = "2021"
 bs58 = "0.5.1"
 sha2 = "0.10.9"
 bech32 = "0.11.0"
+clap = "4.5.38"
+
+[dev-dependencies]
+pretty_assertions = "1.4.1"

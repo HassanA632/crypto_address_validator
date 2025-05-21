@@ -4,6 +4,21 @@ use std::io::{self, Write};
 
 use crate::validation_pipeline;
 
+//Read input from user.
+fn read_input() -> String {
+    //Placeholder for .txt file to check
+    let mut file_name: String = String::new();
+
+    //Read file name
+    println!("Enter file name: ");
+    io::stdin()
+        .read_line(&mut file_name)
+        .expect("Error reading file name");
+
+    //Trim whitespace
+    file_name.trim().to_string()
+}
+
 pub fn file_handler() {
     //Hashset of valid addresses
     let mut hashset_of_addresses = HashSet::new();
@@ -25,25 +40,8 @@ pub fn file_handler() {
         }
         println!("-------------------------------");
     }
-
-    //Todo- Make this a seperate txt file
-    println!("Hashset of valid address:");
-    hashset_to_file(hashset_of_addresses);
-}
-
-//Read input from user.
-fn read_input() -> String {
-    //Placeholder for .txt file to check
-    let mut file_name: String = String::new();
-
-    //Read file name
-    println!("Enter file name: ");
-    io::stdin()
-        .read_line(&mut file_name)
-        .expect("Error reading file name");
-
-    //Trim whitespace
-    file_name.trim().to_string()
+    //Converts hashset to .txt file
+    hashset_to_file(hashset_of_addresses).unwrap();
 }
 
 //convert hashset to file: "output.txt"
