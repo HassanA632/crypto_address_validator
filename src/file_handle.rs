@@ -2,21 +2,13 @@ use std::collections::HashSet;
 use std::fs;
 use std::io::{self, Write};
 
+use crate::args;
 use crate::validation_pipeline;
 
 //Read input from user.
 fn read_input() -> String {
-    //Placeholder for .txt file to check
-    let mut file_name: String = String::new();
-
-    //Read file name
-    println!("Enter file name: ");
-    io::stdin()
-        .read_line(&mut file_name)
-        .expect("Error reading file name");
-
-    //Trim whitespace
-    file_name.trim().to_string()
+    //get first argument from CLI
+    args::handle_args()
 }
 
 pub fn file_handler() {
@@ -26,7 +18,7 @@ pub fn file_handler() {
     let file_name = read_input();
 
     //read entire content of file into string
-    let contents_of_file = fs::read_to_string(&file_name).expect("Failed to read file");
+    let contents_of_file = fs::read_to_string(&file_name).expect("Failed to read file<<");
 
     //Iterate and check each address
     for current_address in contents_of_file.lines() {
