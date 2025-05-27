@@ -1,5 +1,6 @@
 mod args;
 mod bitcoin_check;
+mod ethereum_check;
 mod file_handle;
 mod validation_pipeline;
 

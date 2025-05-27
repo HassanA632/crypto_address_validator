@@ -18,6 +18,16 @@ pub fn length_check(address: &str) -> Result<(), &str> {
     Ok(())
 }
 
+pub fn prefix_check(address: &str) -> Result<AddressType, &str> {
+    if address.starts_with("1") || address.starts_with("3") {
+        return Ok(AddressType::Base58);
+    } else if address.starts_with("bc1") {
+        return Ok(AddressType::Bech32);
+    } else {
+        return Err("Prefix Error");
+    };
+}
+
 pub fn validate_base58(address: &str) -> Result<(), &str> {
     let decoded = match bs58::decode(address).into_vec() {
         Ok(bytes) => {
@@ -63,16 +73,6 @@ pub fn validate_bech32(address: &str) -> Result<(), &str> {
     }
 }
 
-pub fn prefix_check(address: &str) -> Result<AddressType, &str> {
-    if address.starts_with("1") || address.starts_with("3") {
-        return Ok(AddressType::Base58);
-    } else if address.starts_with("bc1") {
-        return Ok(AddressType::Bech32);
-    } else {
-        return Err("Prefix Error");
-    };
-}
-
 pub fn match_address_type(address_type: AddressType, address: &str) -> Result<(), &str> {
     match address_type {
         AddressType::Base58 => validate_base58(address),
@@ -83,6 +83,7 @@ pub fn match_address_type(address_type: AddressType, address: &str) -> Result<()
 #[cfg(test)]
 mod test {
     use super::*;
+    use pretty_assertions::assert_eq;
 
     #[test]
     fn length_checker_works() {
